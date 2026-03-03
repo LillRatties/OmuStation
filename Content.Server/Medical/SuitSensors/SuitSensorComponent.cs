@@ -121,4 +121,10 @@ public sealed partial class SuitSensorComponent : Component
     /// </summary>
     [DataField, ViewVariables]
     public bool PreviousControlsLocked = false;
+
+        /// <summary>
+    ///     Monolith: variable checking if the suits IFF signature is enabled.
+    /// </summary>
+    [DataField]
+    public bool IFFSignatureEnabled = false;
 }

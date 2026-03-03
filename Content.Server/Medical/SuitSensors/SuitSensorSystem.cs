@@ -103,6 +103,7 @@ using Content.Server.Emp;
 using Content.Server.Medical.CrewMonitoring;
 using Content.Server.Popups;
 using Content.Server.Station.Systems;
+using Content.Server._Mono.Radar; // Monolith
 using Content.Shared.ActionBlocker;
 using Content.Shared.Clothing;
 using Content.Shared.Damage;
@@ -331,6 +332,17 @@ public sealed class SuitSensorSystem : EntitySystem
             CreateVerb(uid, component, args.User, SuitSensorMode.SensorVitals),
             CreateVerb(uid, component, args.User, SuitSensorMode.SensorCords)
         });
+         // Monolith IFF signature edit Start
+        var verb = new Verb
+        {
+            Text = Loc.GetString("suit-sensor-signature-toggle"),
+            Act = () =>
+            {
+                TryToggleSignature(uid, component);
+            }
+        };
+        args.Verbs.Add(verb);
+        // End
     }
 
     private void OnInsert(EntityUid uid, SuitSensorComponent component, EntGotInsertedIntoContainerMessage args)
@@ -422,6 +434,25 @@ public sealed class SuitSensorSystem : EntitySystem
             };
 
             _doAfterSystem.TryStartDoAfter(doAfterArgs);
+        }
+    }
+
+     // Monolith - IFF signature toggle verb
+    public void TryToggleSignature(EntityUid uid, SuitSensorComponent comp)
+    {
+        _popupSystem.PopupEntity(Loc.GetString("suit-sensor-signature-toggled"), uid);
+        if (comp.IFFSignatureEnabled || HasComp<RadarBlipComponent>(uid))
+        {
+            comp.IFFSignatureEnabled = false;
+            RemComp<RadarBlipComponent>(uid);
+        }
+        else
+        {
+            comp.IFFSignatureEnabled = true;
+            var blip = EnsureComp<RadarBlipComponent>(uid);
+            blip.RadarColor = Color.Cyan;
+            blip.Scale = 0.5f;
+            blip.VisibleFromOtherGrids = true;
         }
     }
 
